@@ -1,3 +1,3 @@
 # MA1
-
-[https://github.com/piggymin/MA1.git/TheCursedWorld](https://github.com/piggymin/MA1.git/TheCursedWorld)
+[https://piggymin.github.io/MA1/TheCursedWorld]
+(https://piggymin.github.io/MA1/TheCursedWorld)
