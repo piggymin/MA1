@@ -1,0 +1,14 @@
+{ "columns":1,
+ "image":"..\/assets\/love.png",
+ "imageheight":51,
+ "imagewidth":90,
+ "margin":0,
+ "name":"love",
+ "spacing":5,
+ "tilecount":1,
+ "tiledversion":"1.9.2",
+ "tileheight":51,
+ "tilewidth":90,
+ "type":"tileset",
+ "version":"1.9"
+}
