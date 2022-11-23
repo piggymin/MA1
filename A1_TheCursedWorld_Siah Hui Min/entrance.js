@@ -56,7 +56,7 @@ class entrance extends Phaser.Scene {
    
   
     // Add main player here with physics.add.sprite
-    this.player = this.physics.add.sprite(this.player.x,this.player.y, 'pig');
+    this.player = this.physics.add.sprite(this.player.x,this.player.y, 'pig').play("up");
     
     window.player = this.player;
 
@@ -134,6 +134,9 @@ class entrance extends Phaser.Scene {
 // Function to jump to worldmap
 worldmap(player, tile) {
   console.log("worldmap function");
-  this.scene.start("worldmap");
+  let playerPos={}
+  playerPos.x=1301
+  playerPos.y=1777
+  this.scene.start("worldmap" ,{player:playerPos});
 }
 }//////////// end of class world ////////////////////////

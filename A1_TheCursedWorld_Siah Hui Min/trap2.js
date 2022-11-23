@@ -69,7 +69,7 @@ class trap2 extends Phaser.Scene {
     this.player = this.physics.add.sprite(startPoint.x, startPoint.y, 'pig');
     // this.player = this.physics.add.sprite(100,0, 'pig');
     var key = map.findObject("objectLayer", (obj) => obj.name === "key");
-    this.enemy1 = this.physics.add.sprite(key.x, key.y, 'key');
+    this.key = this.physics.add.sprite(key.x, key.y, 'key');
     var love1 = map.findObject("objectLayer", (obj) => obj.name === "love1");
     this.love1 = this.physics.add.sprite(love1.x, love1.y, 'love');
     var love2 = map.findObject("objectLayer", (obj) => obj.name === "love2");
@@ -84,19 +84,25 @@ class trap2 extends Phaser.Scene {
     this.box3 = this.physics.add.sprite(box3.x, box3.y, 'box');
     var box4 = map.findObject("objectLayer", (obj) => obj.name === "box4");
     this.box4 = this.physics.add.sprite(box4.x, box4.y, 'box');
-    var box5 = map.findObject("objectLayer", (obj) => obj.name === "box5");
-    this.box5 = this.physics.add.sprite(box5.x, box5.y, 'box');
     
-    this.player.setCollideWorldBounds(true)
-    // this.wall.setCollisionByProperty({ wall: true }) 
+    
+    this.player.setCollideWorldBounds(true) 
     this.wallLayer.setCollisionByExclusion(-1,true)
     this.doorLayer.setCollisionByExclusion(-1, true);
+    this.box1.setBounce(0.1);
+    this.box1.setCollideWorldBounds(true);
     
     this.physics.world.bounds.width=this.floorLayer.width
     this.physics.world.bounds.height=this.floorLayer.height
 
-
     window.player = this.player;
+
+    this.physics.add.overlap(this.player, this.love1, collectlove, null, this);
+    this.physics.add.overlap(this.player, this.love2, collectlove, null, this);
+    this.physics.add.overlap(this.player, this.love3, collectlove, null, this);
+
+    this.physics.add.overlap(this.player, this.key, collectkey, null, this);
+ 
   
     // Add time event / movement here
 
@@ -113,17 +119,68 @@ this.cursors = this.input.keyboard.createCursorKeys();
     //mapLayer.setTileIndexCallback(11, this.room1, this);
 
     // Add custom properties in Tiled called "mouintain" as bool
-
+      
     // What will collider witg what layers
     this.physics.add.collider(this.wallLayer, this.player);
+    this.physics.add.collider(this.wallLayer, this.box1);
+    this.physics.add.collider(this.wallLayer, this.box2);
+    this.physics.add.collider(this.wallLayer, this.box3);
+    this.physics.add.collider(this.wallLayer, this.box4);
+    this.physics.add.collider(this.wallLayer, this.box5);
     this.physics.add.collider(this.doorLayer, this.player);
+    this.physics.add.collider(this.player,this.box1);
+    this.physics.add.collider(this.player,this.box2);
+    this.physics.add.collider(this.player,this.box3);
+    this.physics.add.collider(this.player,this.box4);
+    // this.physics.add.collider(this.player,this.box5);
+    
+    // this.box1.setVelocityY(50)
+      
     // create the arrow keys
   
+    //enemy
+    this.time.addEvent({
 
+      delay: 0,
 
+      callback: this.moveDownUp1,
+
+      callbackScope: this,
+
+      loop: false,
+
+    });
+
+    this.enemy1 = this.physics.add.sprite(454, 608, "enemy")
+    this.enemy1.body.setSize(this.enemy1.width*1,this.enemy1.height*1)
+    this.physics.add.overlap(this.player, this.enemy1,this.overlap,null,this);
+
+    this.time.addEvent({
+
+      delay: 0,
+
+      callback: this.moveDownUp2,
+
+      callbackScope: this,
+
+      loop: false,
+
+    });
+
+    this.enemy2 = this.physics.add.sprite(672, 416, "enemy")
+    this.enemy2.body.setSize(this.enemy2.width*1,this.enemy2.height*1)
+    this.physics.add.overlap(this.player, this.enemy2,this.overlap,null,this);
   } /////////////////// end of create //////////////////////////////
 
   update() {
+    if (
+      this.player.x > 416 &&
+      this.player.x < 479 &&
+      this.player.y < 300
+    ) {
+      this.worldmap();
+    }
+
     if (this.cursors.left.isDown) {
       this.player.body.setVelocityX(-200);
       this.player.anims.play("left", true); // walk left
@@ -147,7 +204,87 @@ this.cursors = this.input.keyboard.createCursorKeys();
       this.player.body.setVelocity(0, 0);
       //console.log('idle');
     }
-  } /////////////////// end of update //////////////////////////////
-
+  }
+  // Function to jump to worldmap
+  worldmap(player, tile) {
+  console.log("worldmap function");
+  let playerPos={}
+  playerPos.x=1300
+  playerPos.y=380
+  this.scene.start("worldmap" ,{player:playerPos});
 }
+  /////////////////// end of update //////////////////////////////
+  overlap(){
+
+    console.log("enemy overlap player")
+  
+    // lose a life
+  
+    //shake the camera
+  
+    this.cameras.main.shake(20);
+  
+    //play a sound
+  
+  }
+  moveDownUp1() {
+      console.log("moveDownUp");
+      this.tweens.timeline({
+      targets: this.enemy1,
+      ease: "Linear",
+      loop: -1, // loop forever
+      duration: 1400,
+      tweens: [
+        {
+          y: 736,
+        },
+        {
+          y: 608
+        },
+      ],
+    });
+  }
+
+  moveDownUp2() {
+    console.log("moveDownUp");
+    this.tweens.timeline({
+    targets: this.enemy2,
+    ease: "Linear",
+    loop: -1, // loop forever
+    duration: 1400,
+    tweens: [
+      {
+        y: 288,
+      },
+      {
+        y: 416
+      },
+    ],
+  });
+}
+}
+ 
+
+function collectlove (pig, love1)
+    {
+        love1.disableBody(true, true);
+    }
+    function collectlove (pig, love2)
+    {
+        love2.disableBody(true, true);
+    }
+    function collectlove (pig, love3)
+    {
+        love3.disableBody(true, true);
+    }
+    function collectkey (pig, key)
+    {
+        key.disableBody(true, true);
+    }
+
+
+   
+
+ 
+
  //////////// end of class world ////////////////////////

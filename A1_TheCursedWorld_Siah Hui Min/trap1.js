@@ -9,17 +9,15 @@ class trap1 extends Phaser.Scene {
 
     init(data) {
         this.player = data.player
-        // this.inventory = data.inventory
+        this.inventory = data.inventory
     }
+
+    
 
     preload() {
         this.load.tilemapTiledJSON("trap1", "assets/Trap1.tmj");
 
         this.load.image("wallImg", "assets/wall64px.png");
-        // this.load.image("foodImg", "assets/food.png");
-        // this.load.image("loveImg", "assets/love.png");
-        // this.load.image("keyImg", "assets/key.png");
-        // this.load.image("mmImg", "assets/mm.png");
         this.load.spritesheet('pig', 'assets/pig.png',{ frameWidth:64, frameHeight:64 });
     }
 
@@ -35,16 +33,10 @@ class trap1 extends Phaser.Scene {
         let map = this.make.tilemap({ key: "trap1" });
 
         let wallTiles = map.addTilesetImage("wall64px", "wallImg");
-        // let foodTiles = map.addTilesetImage("food", "foodImg");
-        // let loveTiles = map.addTilesetImage("love", "loveImg");
-        // let keyTiles = map.addTilesetImage("key", "keyImg");
-        // let mmTiles = map.addTilesetImage("mm", "mmImg");
     
 
         let tilesArray = [
-            // boxTiles, keyTiles, loveTiles, tileTiles, 
-            wallTiles, 
-            // foodTiles, loveTiles, keyTiles, mmTiles
+            wallTiles
           ];
           
           this.floorLayer = map.createLayer("floor",tilesArray,0,0)
@@ -53,10 +45,10 @@ class trap1 extends Phaser.Scene {
           
           
           var startPoint = map.findObject("objectLayer",(obj) => obj.name === "start");
-          this.player = this.physics.add.sprite(startPoint.x, startPoint.y, 'pig');
+          this.player = this.physics.add.sprite(startPoint.x, startPoint.y, 'pig').play("down");
           
           var key = map.findObject("objectLayer", (obj) => obj.name === "key");
-          this.enemy1 = this.physics.add.sprite(key.x, key.y, 'key');
+          this.key = this.physics.add.sprite(key.x, key.y, 'key');
           var love1 = map.findObject("objectLayer", (obj) => obj.name === "love1");
           this.love1 = this.physics.add.sprite(love1.x, love1.y, 'love');
           var love2 = map.findObject("objectLayer", (obj) => obj.name === "love2");
@@ -97,6 +89,72 @@ class trap1 extends Phaser.Scene {
        //  this.physics.add.collider(this.player, this.decorLayer);
         this.physics.add.collider(this.player, this.itemLayer);
 
+        this.physics.add.overlap(this.player, this.love1, collectlove, null, this);
+        this.physics.add.overlap(this.player, this.love2, collectlove, null, this);
+        this.physics.add.overlap(this.player, this.love3, collectlove, null, this);
+        
+        this.physics.add.overlap(this.player, this.corn1, collectfood, null, this);
+        this.physics.add.overlap(this.player, this.corn2, collectfood, null, this);
+        this.physics.add.overlap(this.player, this.corn3, collectfood, null, this);
+        this.physics.add.overlap(this.player, this.corn4, collectfood, null, this);
+        this.physics.add.overlap(this.player, this.corn5, collectfood, null, this);
+        
+        this.physics.add.overlap(this.player, this.key, collectkey, null, this);
+ 
+        var cursors;
+        var score = 0;
+        var scoreText;
+        var game = new Phaser.Game(config);
+        scoreText = this.add.text(30, 30, 'score: 0', { fontSize: '40px', fill: '#ccccff' });
+
+        this.time.addEvent({
+
+          delay: 0,
+    
+          callback: this.moveDownUp1,
+    
+          callbackScope: this,
+    
+          loop: false,
+    
+        });
+    
+        this.enemy1 = this.physics.add.sprite(353, 162, "enemy")
+        this.enemy1.body.setSize(this.enemy1.width*1,this.enemy1.height*1)
+        this.physics.add.overlap(this.player, this.enemy1,this.overlap,null,this);
+
+        this.time.addEvent({
+
+          delay: 0,
+    
+          callback: this.moveDownUp2,
+    
+          callbackScope: this,
+    
+          loop: false,
+    
+        });
+    
+        this.enemy2 = this.physics.add.sprite(675, 1061, "enemy")
+        this.enemy2.body.setSize(this.enemy2.width*1,this.enemy2.height*1)
+        this.physics.add.overlap(this.player, this.enemy2,this.overlap,null,this);
+        
+
+        this.time.addEvent({
+
+          delay: 0,
+    
+          callback: this.moveDownUp3,
+    
+          callbackScope: this,
+    
+          loop: false,
+    
+        });
+    
+        this.enemy3 = this.physics.add.sprite(995, 162, "enemy")
+        this.enemy3.body.setSize(this.enemy3.width*1,this.enemy3.height*1)
+        this.physics.add.overlap(this.player, this.enemy3,this.overlap,null,this);
     }
 
     update() {
@@ -134,24 +192,128 @@ class trap1 extends Phaser.Scene {
     }
 
 
-    // Function to jump to trap1
+    // Function to jump to worldmap
 worldmap(player, tile) {
   console.log("worldmap function");
   let playerPos={}
-  playerPos.x=1860
-  playerPos.y=940
+  playerPos.x=1850
+  playerPos.y=928
   this.scene.start("worldmap" ,{player:playerPos});
+}
+
+overlap(){
+
+  console.log("enemy overlap player")
+
+  // lose a life
+
+  //shake the camera
+
+  this.cameras.main.shake(20);
+
+  //play a sound
+
+}
+moveDownUp1() {
+    console.log("moveDownUp");
+    this.tweens.timeline({
+    targets: this.enemy1,
+    ease: "Linear",
+    loop: -1, // loop forever
+    duration: 2500,
+    tweens: [
+      {
+        y: 1052,
+      },
+      {
+        y: 162
+      },
+    ],
+  });
+}
+
+moveDownUp2() {
+  console.log("moveDownUp");
+  this.tweens.timeline({
+  targets: this.enemy2,
+  ease: "Linear",
+  loop: -1, // loop forever
+  duration: 2500,
+  tweens: [
+    {
+      y: 100,
+    },
+    {
+      y: 1061
+    },
+  ],
+});
+}
+
+moveDownUp3() {
+  console.log("moveDownUp");
+  this.tweens.timeline({
+  targets: this.enemy3,
+  ease: "Linear",
+  loop: -1, // loop forever
+  duration: 2500,
+  tweens: [
+    {
+      y: 1052,
+    },
+    {
+      y: 162
+    },
+  ],
+});
 }
 
 }
 
    function collectlove (pig, love1)
     {
-        love.disableBody(true, true);
+        love1.disableBody(true, true);
+    }
+    function collectlove (pig, love2)
+    {
+        love2.disableBody(true, true);
+    }
+    function collectlove (pig, love3)
+    {
+        love3.disableBody(true, true);
     }
 
     function collectfood (pig, corn1)
     {
-        food.disableBody(true, true);
-        this.cameras.main.shake(200)
+        corn1.disableBody(true, true);
+
+        score += 100;
+        scoreText.setText('Score:'+ score);
     }
+    function collectfood (pig, corn2)
+    {
+        corn2.disableBody(true, true);
+    }
+    function collectfood (pig, corn3)
+    {
+        corn3.disableBody(true, true);
+    }
+    function collectfood (pig, corn4)
+    {
+        corn4.disableBody(true, true);
+    }
+    function collectfood (pig, corn5)
+    {
+        corn5.disableBody(true, true);
+    }
+    function collectkey (pig, key)
+    {
+        key.disableBody(true, true);
+    }
+
+    
+    // function collectfood (pig, corn1)
+    // {
+    //     corn1.disableBody(true, true);
+    //     this.cameras.main.shake(200)
+    // }

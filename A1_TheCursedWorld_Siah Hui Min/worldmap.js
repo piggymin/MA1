@@ -15,7 +15,7 @@ class worldmap extends Phaser.Scene {
   create() {
     console.log("*** worldmap scene");
 
-    this.mainMusic=this.sound.add("mainMusic",{loop: true}).setVolume(0.2)
+    this.mainMusic=this.sound.add("mainMusic",{loop: true}).setVolume(0.1)
     this.mainMusic.stop()
     this.mainMusic.play()
     
@@ -56,7 +56,7 @@ class worldmap extends Phaser.Scene {
     var startPoint = map.findObject("objectLayer",(obj) => obj.name === "start");
     
     var key = map.findObject("objectLayer", (obj) => obj.name === "key");
-    this.enemy1 = this.physics.add.sprite(key.x, key.y, 'key');
+    this.key = this.physics.add.sprite(key.x, key.y, 'key');
     var love1 = map.findObject("objectLayer", (obj) => obj.name === "love1");
     this.love1 = this.physics.add.sprite(love1.x, love1.y, 'love');
     var love2 = map.findObject("objectLayer", (obj) => obj.name === "love2");
@@ -72,16 +72,23 @@ class worldmap extends Phaser.Scene {
     this.trap2 = this.physics.add.sprite(trap2.x, trap2.y, 'trapImg');
     var trap3 = map.findObject("objectLayer", (obj) => obj.name === "trap3");
     this.trap3 = this.physics.add.sprite(trap3.x, trap3.y, 'trapImg');
-    this.player = this.physics.add.sprite(startPoint.x, startPoint.y, 'pig');
+    this.player = this.physics.add.sprite(this.player.x, this.player.y, 'pig').play("up");
     
     // get the tileIndex number in json, +1
     //mapLayer.setTileIndexCallback(11, this.room1, this);
     this.player.setCollideWorldBounds(true)
-    // Add custom properties in Tiled called "mouintain" as bool
-    this.wallLayer.setCollisionByExclusion(-1,true)
     this.physics.world.bounds.width=this.floorLayer.width
     this.physics.world.bounds.height=this.floorLayer.height
+    
+    // Add custom properties in Tiled called "mouintain" as bool
+    this.wallLayer.setCollisionByExclusion(-1,true)
+    this.decorationLayer.setCollisionByExclusion(-1,true)
+    this.doorLayer.setCollisionByExclusion(-1,true)
+    
     this.physics.add.collider(this.wallLayer, this.player);
+    this.physics.add.collider(this.decorationLayer, this.player);
+    this.physics.add.collider(this.doorLayer, this.player);
+    
     
     window.player = this.player;
     
@@ -97,6 +104,12 @@ this.cursors = this.input.keyboard.createCursorKeys();
  // set background color, so the sky is not black
  this.cameras.main.setBackgroundColor("#ccccff");
 
+ this.physics.add.overlap(this.player, this.love1, collectlove, null, this);
+ this.physics.add.overlap(this.player, this.love2, collectlove, null, this);
+ this.physics.add.overlap(this.player, this.love3, collectlove, null, this);
+ this.physics.add.overlap(this.player, this.love4, collectlove, null, this);
+ this.physics.add.overlap(this.player, this.key, collectkey, null, this);
+ 
     
   } /////////////////// end of create //////////////////////////////
 
@@ -107,25 +120,27 @@ this.cursors = this.input.keyboard.createCursorKeys();
       this.player.y > 1880
     ) {
       this.entrance();
-    } else if (
-      this.player.x > 1834 &&
-      this.player.x > 1840 &&
+    } 
+    else if (
+      this.player.x > 1580 &&
+      this.player.x < 1595 &&
       this.player.y < 974 &&
       this.player.y > 910
     ) {
       this.Trap1();
     }
     else if (
-      this.player.x > 1252 &&
-      this.player.x < 1369 &&
-      this.player.y < 543 &&
-      this.player.y > 536
+      this.player.x < 1386 &&
+      this.player.x > 1300 &&
+      this.player.y < 480 &&
+      this.player.y > 420
     ) {
       this.Trap2();
     }
     else if (
       this.player.x < 501 &&
-      this.player.y < 672 &&
+      this.player.x > 460 &&
+      this.player.y < 665  &&
       this.player.y > 608
     ) {
       this.Trap3();
@@ -181,4 +196,25 @@ this.cursors = this.input.keyboard.createCursorKeys();
     this.scene.start("trap3");
   }
 }
+
+    function collectlove (pig, love1)
+    {
+        love1.disableBody(true, true);
+    }
+    function collectlove (pig, love2)
+    {
+        love2.disableBody(true, true);
+    }
+    function collectlove (pig, love3)
+    {
+        love3.disableBody(true, true);
+    }
+    function collectlove (pig, love4)
+    {
+        love4.disableBody(true, true);
+    }
+    function collectkey (pig, key)
+    {
+        key.disableBody(true, true);
+    }
  //////////// end of class world ////////////////////////

@@ -20,6 +20,9 @@ preload() {
     this.load.image("trapImg", "assets/trap.png");
     this.load.image("wallImg", "assets/wall64px.png");
     this.load.image("box", "assets/box.png");
+    this.load.image("enemy", "assets/enemy.png");
+    this.load.image("main","assets/main.png")
+
 
     this.load.audio("mainMusic", "assets/main-music.mp3");
     this.load.audio("gameMusic", "assets/game-music.mp3");
@@ -37,10 +40,25 @@ preload() {
 
 create() {
 console.log("preloadScene")
-    this.add.text(10, 10, 'This is preload Scene', { font: '24px Courier', fill: '#FFFF00' });
-    this.add.text(10, 34, 'Click or space to continue', { font: '24px Courier', fill: '#FFFF00' });
-
+    this.add.image(650,650,"main")
+  
     var spaceDown = this.input.keyboard.addKey('SPACE');
+
+    var key1 = this.input.keyboard.addKey(49);
+    var key2 = this.input.keyboard.addKey(50);
+    var key3 = this.input.keyboard.addKey(51);
+  
+
+    key1.on('down', function(){
+        this.scene.start("trap1");
+        }, this );
+
+        key2.on('down', function(){
+            this.scene.start("trap2");
+            }, this );
+            key3.on('down', function(){
+                this.scene.start("trap3");
+                }, this );
         
     this.input.on('pointerdown', function (pointer) {
         this.scene.start("entrance");
@@ -104,3 +122,6 @@ console.log("preloadScene")
 }
 
 } // end of class
+
+window.key = 0
+window.heart = 3
