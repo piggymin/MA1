@@ -35,7 +35,7 @@ preload() {
     this.load.audio("collectlove", "assets/Collectlove.mp3");
     this.load.audio("collectkey", "assets/Collectkey.mp3");
     this.load.audio("hit", "assets/hitenemy.mp3");
-    this.load.audio("space", "assets/Space.mp3");
+    this.load.audio("space", "assets/space.mp3");
 
     this.load.spritesheet('pig', 'assets/pig.png',{ frameWidth:64, frameHeight:64 });
 
