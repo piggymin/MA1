@@ -26,8 +26,8 @@ preload() {
     this.load.image("gameplay2Img","assets/gameplay2.png")
     this.load.image("howtoplayImg","assets/howtoplay.png")
 
-    this.load.audio("mainMusic", "assets/main-music.mp3");
-    this.load.audio("gameMusic", "assets/game-music.mp3");
+    this.load.audio("mainMusic", "assets/mainmusic.mp3");
+    this.load.audio("gameMusic", "assets/gamemusic.mp3");
 
     this.load.spritesheet('pig', 'assets/pig.png',{ frameWidth:64, frameHeight:64 });
 }

@@ -30,11 +30,11 @@ preload() {
 
 
 
-    this.load.audio("mainMusic", "assets/main-music.mp3");
-    this.load.audio("gameMusic", "assets/game-music.mp3");
+    this.load.audio("mainMusic", "assets/mainmusic.mp3");
+    this.load.audio("gameMusic", "assets/gamemusic.mp3");
     this.load.audio("collectlove", "assets/Collectlove.mp3");
     this.load.audio("collectkey", "assets/Collectkey.mp3");
-    this.load.audio("hit", "assets/hit-enemy.mp3");
+    this.load.audio("hit", "assets/hitenemy.mp3");
     this.load.audio("space", "assets/Space.mp3");
 
     this.load.spritesheet('pig', 'assets/pig.png',{ frameWidth:64, frameHeight:64 });
