@@ -1,8 +1,8 @@
-class preloadScene extends Phaser.Scene {
+class gameplay1 extends Phaser.Scene {
 
     constructor ()
     {
-        super({ key: 'preloadScene' });
+        super({ key: 'gameplay1' });
     }
 
 preload() {
@@ -13,7 +13,6 @@ preload() {
     this.load.tilemapTiledJSON("worldmap", "assets/worldmap.tmj");
 
     
-    this.load.image("key", "assets/key.png");
     this.load.image("love", "assets/love.png");
     this.load.image("food", "assets/food.png");
     this.load.image("mmImg", "assets/mm.png");
@@ -26,73 +25,45 @@ preload() {
     this.load.image("gameplay1Img","assets/gameplay1.png")
     this.load.image("gameplay2Img","assets/gameplay2.png")
     this.load.image("howtoplayImg","assets/howtoplay.png")
-    this.load.image("endsceneImg","assets/endscene.png")
-
-
 
     this.load.audio("mainMusic", "assets/main-music.mp3");
     this.load.audio("gameMusic", "assets/game-music.mp3");
-    this.load.audio("collectlove", "assets/Collectlove.mp3");
-    this.load.audio("collectkey", "assets/Collectkey.mp3");
-    this.load.audio("hit", "assets/hit-enemy.mp3");
-    this.load.audio("space", "assets/Space.mp3");
 
     this.load.spritesheet('pig', 'assets/pig.png',{ frameWidth:64, frameHeight:64 });
-
 }
 
 create() {
-console.log("preloadScene")
-    this.add.image(650,650,"main")
-
-    this.spaceSnd = this.sound.add("space").setVolume(3);
-
-        window.gameMusic=this.sound.add("gameMusic",{loop: true}).setVolume(0.2)
-        window.gameMusic.play()
-
-    var spaceDown = this.input.keyboard.addKey('SPACE');
-
-    var key1 = this.input.keyboard.addKey(49);
-    var key2 = this.input.keyboard.addKey(50);
-    var key3 = this.input.keyboard.addKey(51);
+console.log("gameplay1")
+    this.add.image(650,650,"gameplay1Img")
   
-
-    key1.on('down', function(){
-        this.scene.start("trap1");
-        }, this );
-
-        key2.on('down', function(){
-            this.scene.start("trap2");
-            }, this );
-            key3.on('down', function(){
-                this.scene.start("trap3");
-                }, this );
+    this.spaceSnd = this.sound.add("space").setVolume(3);
+    
+    var spaceDown = this.input.keyboard.addKey('SPACE');
         
     this.input.on('pointerdown', function (pointer) {
-        this.scene.start("storyline");
+        this.scene.start("gameplay2");
         }, this);
 
     spaceDown.on('down', function(){
-        console.log("Spacebar pressed, goto storyline");
+        console.log("Spacebar pressed, goto entrance");
         this.spaceSnd.play()
-        
+    
     let playerPos={}
         playerPos.x=667
         playerPos.y=1200
     this.scene.start(
-        "storyline",
+        "gameplay2",
         {player:playerPos}
       );
+      
     },
     this);
 
-    var rDown = this.input.keyboard.addKey('R');
-        
-    rDown.on('down', function(){
-    console.log("R pressed (restart game)");
-        this.scene.start("preloadScene");
-    }, this );
-
+        var zDown = this.input.keyboard.addKey('Z');
+        zDown.on('down', function(){
+        console.log("Z pressed (Undo)");
+            this.scene.start("storyline");
+        }, this );
     
         this.anims.create({
         key: "up",
@@ -126,6 +97,3 @@ console.log("preloadScene")
 
 } // end of class
 
-// window.key = 0
-// window.love = 3
-// window.food=0

@@ -20,40 +20,25 @@ class trap2 extends Phaser.Scene {
   
     this.load.image("wallImg", "assets/wall64px.png");
     this.load.image("tileImg", "assets/tile64px.png");
-    // this.load.image("loveImg", "assets/love.png");
-    // this.load.image("keyImg", "assets/key.png");
-    // this.load.image("boxImg", "assets/box.png");
     this.load.spritesheet('pig', 'assets/pig.png',{ frameWidth:64, frameHeight:64 });
   }
   
 
   create() {
     console.log("*** trap2 scene");
-
-    this.gameMusic=this.sound.add("gameMusic",{loop: true}).setVolume(0.2)
-    this.gameMusic.stop()
-    this.gameMusic.play()
-
     
     //Step 3 - Create the map from main
     let map = this.make.tilemap({ key: "trap2" });
-
-    // Step 4 Load the game tiles
-    // 1st parameter is name in Tiled,
-    // 2nd parameter is key in Preload
   
     let wallTiles = map.addTilesetImage("wall 64px", "wallImg");
     let tileTiles = map.addTilesetImage("tile64px", "tileImg");
-    // let loveTiles = map.addTilesetImage("love", "loveImg");
-    // let keyTiles = map.addTilesetImage("key", "keyImg");
-    // let boxTiles = map.addTilesetImage("box", "boxImg");
+
     
 
 
     // Step 5  create an array of tiles
     let tilesArray = [
-      wallTiles, tileTiles, 
-      // loveTiles, keyTiles, boxTiles
+      wallTiles, tileTiles
     ];
 
     // Step 6  Load in layers by layers
@@ -63,6 +48,9 @@ class trap2 extends Phaser.Scene {
     this.doorLayer = map.createLayer("door",tilesArray,0,0);
     // this.itemLayer = map.createLayer("item",tilesArray,0,0);
   
+    this.loveSnd = this.sound.add("collectlove").setVolume(3);
+    this.keySnd = this.sound.add("collectkey").setVolume(3);
+    this.hitSnd = this.sound.add("hit").setVolume(3);
 
     // Add main player here with physics.add.sprite
     var startPoint = map.findObject("objectLayer",(obj) => obj.name === "start");
@@ -97,14 +85,12 @@ class trap2 extends Phaser.Scene {
 
     window.player = this.player;
 
-    this.physics.add.overlap(this.player, this.love1, collectlove, null, this);
-    this.physics.add.overlap(this.player, this.love2, collectlove, null, this);
-    this.physics.add.overlap(this.player, this.love3, collectlove, null, this);
+    this.physics.add.overlap(this.player, this.love1, this.collectlove, null, this);
+    this.physics.add.overlap(this.player, this.love2, this.collectlove, null, this);
+    this.physics.add.overlap(this.player, this.love3, this.collectlove, null, this);
 
-    this.physics.add.overlap(this.player, this.key, collectkey, null, this);
- 
-  
-    // Add time event / movement here
+    this.physics.add.overlap(this.player, this.key, this.collectkey, null, this);
+
 
 this.cursors = this.input.keyboard.createCursorKeys();
  // set bounds so the camera won't go outside the game world
@@ -112,15 +98,8 @@ this.cursors = this.input.keyboard.createCursorKeys();
  // make the camera follow the player
  this.cameras.main.startFollow(this.player);
 
- // set background color, so the sky is not black
  this.cameras.main.setBackgroundColor("#ccccff");
 
-    // get the tileIndex number in json, +1
-    //mapLayer.setTileIndexCallback(11, this.room1, this);
-
-    // Add custom properties in Tiled called "mouintain" as bool
-      
-    // What will collider witg what layers
     this.physics.add.collider(this.wallLayer, this.player);
     this.physics.add.collider(this.wallLayer, this.box1);
     this.physics.add.collider(this.wallLayer, this.box2);
@@ -132,13 +111,9 @@ this.cursors = this.input.keyboard.createCursorKeys();
     this.physics.add.collider(this.player,this.box2);
     this.physics.add.collider(this.player,this.box3);
     this.physics.add.collider(this.player,this.box4);
-    // this.physics.add.collider(this.player,this.box5);
     
-    // this.box1.setVelocityY(50)
-      
-    // create the arrow keys
-  
-    //enemy
+    
+    this.scene.launch("showInventory")
     this.time.addEvent({
 
       delay: 0,
@@ -153,7 +128,7 @@ this.cursors = this.input.keyboard.createCursorKeys();
 
     this.enemy1 = this.physics.add.sprite(454, 608, "enemy")
     this.enemy1.body.setSize(this.enemy1.width*1,this.enemy1.height*1)
-    this.physics.add.overlap(this.player, this.enemy1,this.overlap,null,this);
+    this.physics.add.overlap(this.player, this.enemy1,this.hitenemy,null,this);
 
     this.time.addEvent({
 
@@ -169,16 +144,39 @@ this.cursors = this.input.keyboard.createCursorKeys();
 
     this.enemy2 = this.physics.add.sprite(672, 416, "enemy")
     this.enemy2.body.setSize(this.enemy2.width*1,this.enemy2.height*1)
-    this.physics.add.overlap(this.player, this.enemy2,this.overlap,null,this);
+    this.physics.add.overlap(this.player, this.enemy2,this.hitenemy,null,this);
+
+    this.scene.launch("showInventory")
+
+    this.time.addEvent({
+
+      delay: 0,
+    
+      callback: updateInventory,
+    
+      callbackScope: this,
+    
+      loop: false,
+    
+    });
+    
   } /////////////////// end of create //////////////////////////////
 
   update() {
     if (
       this.player.x > 416 &&
       this.player.x < 479 &&
-      this.player.y < 300
+      this.player.y < 300 &&
+      window.key >= 2
     ) {
       this.worldmap();
+    }else if (
+      this.player.x > 416 &&
+      this.player.x < 479 &&
+      this.player.y < 300 &&
+      window.key <= 2
+    ) {
+      console.log("can't go to worldmap, not enough key")
     }
 
     if (this.cursors.left.isDown) {
@@ -218,14 +216,7 @@ this.cursors = this.input.keyboard.createCursorKeys();
 
     console.log("enemy overlap player")
   
-    // lose a life
-  
-    //shake the camera
-  
     this.cameras.main.shake(20);
-  
-    //play a sound
-  
   }
   moveDownUp1() {
       console.log("moveDownUp");
@@ -262,28 +253,63 @@ this.cursors = this.input.keyboard.createCursorKeys();
     ],
   });
 }
+
+collectlove(player,love){
+
+  console.log("collectlove");
+
+  this.loveSnd.play()
+
+window.heart++
+if (window.heart > 3){
+  window.heart = 3;
 }
- 
 
-function collectlove (pig, love1)
-    {
-        love1.disableBody(true, true);
-    }
-    function collectlove (pig, love2)
-    {
-        love2.disableBody(true, true);
-    }
-    function collectlove (pig, love3)
-    {
-        love3.disableBody(true, true);
-    }
-    function collectkey (pig, key)
-    {
-        key.disableBody(true, true);
-    }
+love.disableBody(true,true);
+
+updateInventory.call(this)
+}
 
 
-   
+collectkey(player,key){
+  console.log("collectkey");
+
+  this.keySnd.play()
+
+window.key++
+
+key.disableBody(true,true);
+
+updateInventory.call(this)
+}
+
+hitenemy(player,enemy){
+
+  console.log("enemy overlap player")
+
+  this.cameras.main.shake(100);
+
+  window.heart--
+
+  this.hitSnd.play()
+
+  enemy.disableBody(true,true);
+
+  updateInventory.call(this)
+
+  if (window.heart == 0){
+     
+    this.scene.stop('trap2');
+    this.scene.stop('showInventory');
+    this.scene.start("gameover")
+  }
+}
+}
+
+
+    window.key = 0
+    window.heart = 3
+    
 
  
 

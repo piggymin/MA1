@@ -6,7 +6,7 @@
     physics: {
         default: 'arcade',
         arcade: {
-            debug: true
+            debug: false
         }
     },
     scale: {
@@ -15,11 +15,10 @@
     },
     backgroundColor: '#111111',
     pixelArt: true,
-    scene: [preloadScene, endScene, world, worldmap, trap1, trap2, trap3, entrance]
+    scene: [preloadScene, endScene, worldmap, trap1, trap2, trap3, entrance, storyline, gameplay1, gameplay2, howtoplay, gameover, showInventory]
 };
 
-
-
-
-
 var game = new Phaser.Game(config);
+window.key= 0
+window.heart = 3
+window.food=0

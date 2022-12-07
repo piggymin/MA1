@@ -65,16 +65,6 @@ class entrance extends Phaser.Scene {
     this.physics.world.bounds.width=this.floorLayer.width
     this.physics.world.bounds.height=this.floorLayer.height
 
-    // this.player.setCollideWorldBounds(true);
-
-    // Add time event / movement here
-
-    // get the tileIndex number in json, +1
-    //mapLayer.setTileIndexCallback(11, this.room1, this);
-
-    // Add custom properties in Tiled called "mouintain" as bool
-
-    // What will collider witg what layers
     this.physics.add.collider(this.wallLayer, this.player);
 
     // create the arrow keys
@@ -93,6 +83,11 @@ class entrance extends Phaser.Scene {
 //  this.physics.add.collider(this.player, this.decorLayer);
  this.physics.add.collider(this.player, this.buildingLayer);
   
+ var zDown = this.input.keyboard.addKey('Z');
+ zDown.on('down', function(){
+ console.log("Z pressed (Undo)");
+     this.scene.start("gameplay1");
+ }, this );
 
   } /////////////////// end of create //////////////////////////////
 

@@ -9,47 +9,36 @@ class trap3 extends Phaser.Scene {
 
     init(data) {
         this.player = data.player
-        // this.inventory = data.inventory
+        this.inventory = data.inventory
     }
 
     preload() {
         this.load.tilemapTiledJSON("trap3", "assets/Trap3.tmj");
 
         this.load.image("wallImg", "assets/wall64px.png");
-        // this.load.image("foodImg", "assets/food.png");
-        // this.load.image("loveImg", "assets/love.png");
-        // this.load.image("keyImg", "assets/key.png");
-        // this.load.image("mmImg", "assets/mm.png");
         this.load.spritesheet('pig', 'assets/pig.png',{ frameWidth:64, frameHeight:64 });
     }
 
     create() {
         console.log('*** trap1 scene');
-
-        this.gameMusic=this.sound.add("gameMusic",{loop: true}).setVolume(0.2)
-        this.gameMusic.stop()
-        this.gameMusic.play()
         
         let map = this.make.tilemap({ key: "trap3" });
 
         let wallTiles = map.addTilesetImage("wall64px", "wallImg");
-        // let foodTiles = map.addTilesetImage("food", "foodImg");
-        // let loveTiles = map.addTilesetImage("love", "loveImg");
-        // let keyTiles = map.addTilesetImage("key", "keyImg");
-        // let mmTiles = map.addTilesetImage("mm", "mmImg");
     
 
         let tilesArray = [
-            // boxTiles, keyTiles, loveTiles, tileTiles, 
-            wallTiles, 
-            // foodTiles, loveTiles, keyTiles, mmTiles
+            wallTiles
           ];
           
           this.floorLayer = map.createLayer("floor",tilesArray,0,0)
           this.obstacleLayer = map.createLayer("obstacle",tilesArray,0,0);
           this.itemLayer = map.createLayer("item",tilesArray,0,0);
           
-          
+          this.loveSnd = this.sound.add("collectlove").setVolume(3);
+          this.keySnd = this.sound.add("collectkey").setVolume(3);
+          this.hitSnd = this.sound.add("hit").setVolume(3);
+
           var startPoint = map.findObject("objectLayer",(obj) => obj.name === "start");
           this.player = this.physics.add.sprite(startPoint.x, startPoint.y, 'pig').play("down");
           
@@ -91,29 +80,28 @@ class trap3 extends Phaser.Scene {
        this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
        // make the camera follow the player
        this.cameras.main.startFollow(this.player);
-      
-       // set background color, so the sky is not black
+
        this.cameras.main.setBackgroundColor("#ccccff");
        
        this.itemLayer.setCollisionByExclusion(-1, true);
 
-       //  this.physics.add.collider(this.player, this.decorLayer);
         this.physics.add.collider(this.player, this.itemLayer);
 
-        this.physics.add.overlap(this.player, this.love1, collectlove, null, this);
-        this.physics.add.overlap(this.player, this.love2, collectlove, null, this);
-        this.physics.add.overlap(this.player, this.love3, collectlove, null, this);
+        this.physics.add.overlap(this.player, this.love1, this.collectlove, null, this);
+        this.physics.add.overlap(this.player, this.love2, this.collectlove, null, this);
+        this.physics.add.overlap(this.player, this.love3, this.collectlove, null, this);
         
-        this.physics.add.overlap(this.player, this.corn1, collectfood, null, this);
-        this.physics.add.overlap(this.player, this.corn2, collectfood, null, this);
-        this.physics.add.overlap(this.player, this.corn3, collectfood, null, this);
-        this.physics.add.overlap(this.player, this.corn4, collectfood, null, this);
-        this.physics.add.overlap(this.player, this.corn5, collectfood, null, this);
-        this.physics.add.overlap(this.player, this.corn6, collectfood, null, this);
-        this.physics.add.overlap(this.player, this.corn7, collectfood, null, this);
+        this.physics.add.overlap(this.player, this.corn1, this.collectfood, null, this);
+        this.physics.add.overlap(this.player, this.corn2, this.collectfood, null, this);
+        this.physics.add.overlap(this.player, this.corn3, this.collectfood, null, this);
+        this.physics.add.overlap(this.player, this.corn4, this.collectfood, null, this);
+        this.physics.add.overlap(this.player, this.corn5, this.collectfood, null, this);
+        this.physics.add.overlap(this.player, this.corn6, this.collectfood, null, this);
+        this.physics.add.overlap(this.player, this.corn7, this.collectfood, null, this);
 
-        this.physics.add.overlap(this.player, this.key, collectkey, null, this);
+        this.physics.add.overlap(this.player, this.key, this.collectkey, null, this);
 
+        this.scene.launch("showInventory")
         this.time.addEvent({
 
             delay: 0,
@@ -128,7 +116,7 @@ class trap3 extends Phaser.Scene {
       
           this.enemy1 = this.physics.add.sprite(353, 162, "enemy")
           this.enemy1.body.setSize(this.enemy1.width*1,this.enemy1.height*1)
-          this.physics.add.overlap(this.player, this.enemy1,this.overlap,null,this);
+          this.physics.add.overlap(this.player, this.enemy1,this.hitenemy,null,this);
 
           this.time.addEvent({
 
@@ -144,7 +132,7 @@ class trap3 extends Phaser.Scene {
       
           this.enemy2 = this.physics.add.sprite(675, 1061, "enemy")
           this.enemy2.body.setSize(this.enemy2.width*1,this.enemy2.height*1)
-          this.physics.add.overlap(this.player, this.enemy2,this.overlap,null,this);
+          this.physics.add.overlap(this.player, this.enemy2,this.hitenemy,null,this);
           
   
           this.time.addEvent({
@@ -161,7 +149,7 @@ class trap3 extends Phaser.Scene {
       
           this.enemy3 = this.physics.add.sprite(995, 162, "enemy")
           this.enemy3.body.setSize(this.enemy3.width*1,this.enemy3.height*1)
-          this.physics.add.overlap(this.player, this.enemy3,this.overlap,null,this);
+          this.physics.add.overlap(this.player, this.enemy3,this.hitenemy,null,this);
 
           this.time.addEvent({
   
@@ -177,7 +165,7 @@ class trap3 extends Phaser.Scene {
       
           this.enemy4 = this.physics.add.sprite(1314, 1061, "enemy")
           this.enemy4.body.setSize(this.enemy4.width*1,this.enemy4.height*1)
-          this.physics.add.overlap(this.player, this.enemy4,this.overlap,null,this);
+          this.physics.add.overlap(this.player, this.enemy4,this.hitenemy,null,this);
 
           
           this.time.addEvent({
@@ -194,17 +182,106 @@ class trap3 extends Phaser.Scene {
       
           this.enemy5 = this.physics.add.sprite(1632, 162, "enemy")
           this.enemy5.body.setSize(this.enemy5.width*1,this.enemy5.height*1)
-          this.physics.add.overlap(this.player, this.enemy5,this.overlap,null,this);
+          this.physics.add.overlap(this.player, this.enemy5,this.hitenemy,null,this);
+
+          this.time.addEvent({
   
+            delay: 0,
+      
+            callback: this.moveDownUp6,
+      
+            callbackScope: this,
+      
+            loop: false,
+      
+          });
+      
+          this.enemy6 = this.physics.add.sprite(159, 416, "enemy")
+          this.enemy6.body.setSize(this.enemy6.width*1,this.enemy6.height*1)
+          this.physics.add.overlap(this.player, this.enemy6,this.hitenemy,null,this);
+
+          this.time.addEvent({
+  
+            delay: 0,
+      
+            callback: this.moveDownUp7,
+      
+            callbackScope: this,
+      
+            loop: false,
+      
+          });
+      
+          this.enemy7 = this.physics.add.sprite(802, 608, "enemy")
+          this.enemy7.body.setSize(this.enemy7.width*1,this.enemy7.height*1)
+          this.physics.add.overlap(this.player, this.enemy7,this.hitenemy,null,this);
+
+          this.time.addEvent({
+  
+            delay: 0,
+      
+            callback: this.moveDownUp8,
+      
+            callbackScope: this,
+      
+            loop: false,
+      
+          });
+      
+          this.enemy8 = this.physics.add.sprite(1435, 864, "enemy")
+          this.enemy8.body.setSize(this.enemy8.width*1,this.enemy8.height*1)
+          this.physics.add.overlap(this.player, this.enemy8,this.hitenemy,null,this);
+
+          this.time.addEvent({
+  
+            delay: 0,
+      
+            callback: this.moveDownUp9,
+      
+            callbackScope: this,
+      
+            loop: false,
+      
+          });
+      
+          this.enemy9 = this.physics.add.sprite(2082,608, "enemy")
+          this.enemy9.body.setSize(this.enemy9.width*1,this.enemy9.height*1)
+          this.physics.add.overlap(this.player, this.enemy9,this.hitenemy,null,this);
+  
+  
+          this.scene.launch("showInventory")
+
+          this.time.addEvent({
+
+            delay: 0,
+          
+            callback: updateInventory,
+          
+            callbackScope: this,
+          
+            loop: false,
+          
+          });
+          
     }
 
     update() {
        if (
         this.player.x > 2271 &&
         this.player.x < 2338 &&
-        this.player.y < 165
+        this.player.y < 165 &&
+        window.key >= 3 &&
+        window.food >=12
       ) {
         this.worldmap();
+      }else if (
+        this.player.x > 2271 &&
+        this.player.x < 2338 &&
+        this.player.y < 165 &&
+        window.key <= 3 &&
+        window.food <=12
+      ) {
+        console.log("can't go to worldmap, not enough key/food")
       }
 
         if (this.cursors.left.isDown) {
@@ -245,13 +322,7 @@ class trap3 extends Phaser.Scene {
 
         console.log("enemy overlap player")
       
-        // lose a life
-      
-        //shake the camera
-      
         this.cameras.main.shake(20);
-      
-        //play a sound
       
       }
       moveDownUp1() {
@@ -260,7 +331,7 @@ class trap3 extends Phaser.Scene {
           targets: this.enemy1,
           ease: "Linear",
           loop: -1, // loop forever
-          duration: 2500,
+          duration: 2000,
           tweens: [
             {
               y: 1052,
@@ -278,7 +349,7 @@ class trap3 extends Phaser.Scene {
         targets: this.enemy2,
         ease: "Linear",
         loop: -1, // loop forever
-        duration: 2500,
+        duration: 2000,
         tweens: [
           {
             y: 100,
@@ -296,7 +367,7 @@ class trap3 extends Phaser.Scene {
         targets: this.enemy3,
         ease: "Linear",
         loop: -1, // loop forever
-        duration: 2500,
+        duration: 2000,
         tweens: [
           {
             y: 1052,
@@ -314,7 +385,7 @@ class trap3 extends Phaser.Scene {
         targets: this.enemy4,
         ease: "Linear",
         loop: -1, // loop forever
-        duration: 2500,
+        duration: 2000,
         tweens: [
           {
             y: 100,
@@ -332,7 +403,7 @@ class trap3 extends Phaser.Scene {
         targets: this.enemy5,
         ease: "Linear",
         loop: -1, // loop forever
-        duration: 2500,
+        duration: 2000,
         tweens: [
           {
             y: 1052,
@@ -344,51 +415,144 @@ class trap3 extends Phaser.Scene {
       });
       }
 
+      moveDownUp6() {
+        console.log("moveDownUp");
+        this.tweens.timeline({
+        targets: this.enemy6,
+        ease: "Linear",
+        loop: -1, // loop forever
+        duration: 1500,
+        tweens: [
+          {
+            y: 288,
+          },
+          {
+            y: 416
+          },
+        ],
+      });
+      }
+
+      moveDownUp7() {
+        console.log("moveDownUp");
+        this.tweens.timeline({
+        targets: this.enemy7 ,
+        ease: "Linear",
+        loop: -1, // loop forever
+        duration: 1500,
+        tweens: [
+          {
+            y: 480,
+          },
+          {
+            y: 608
+          },
+        ],
+      });
+      }
+
+      moveDownUp8() {
+        console.log("moveDownUp");
+        this.tweens.timeline({
+        targets: this.enemy8 ,
+        ease: "Linear",
+        loop: -1, // loop forever
+        duration: 1500,
+        tweens: [
+          {
+            y: 746,
+          },
+          {
+            y: 864
+          },
+        ],
+      });
+      }
+
+      moveDownUp9() {
+        console.log("moveDownUp");
+        this.tweens.timeline({
+        targets: this.enemy9 ,
+        ease: "Linear",
+        loop: -1, // loop forever
+        duration: 1500,
+        tweens: [
+          {
+            y: 480,
+          },
+          {
+            y: 608
+          },
+        ],
+      });
+      }
+
+      collectlove(player,love){
+
+        console.log("collectlove");
+      
+        this.loveSnd.play()
+      
+      window.heart++
+      if (window.heart > 3){
+        window.heart = 3;
+      }
+
+      love.disableBody(true,true);
+      
+      updateInventory.call(this)
+      }
+      
+      collectfood(player,food){
+        console.log("collectfood");
+      
+        this.keySnd.play()
+      
+      window.food++
+      
+      food.disableBody(true,true);
+      
+      updateInventory.call(this)
+      }
+      
+      collectkey(player,key){
+        console.log("collectkey");
+      
+      this.keySnd.play()
+      
+      window.key++
+      
+      key.disableBody(true,true);
+      
+      updateInventory.call(this)
+      }
+      
+      hitenemy(player,enemy){
+      
+        console.log("enemy overlap player")
+      
+      
+        this.cameras.main.shake(100);
+      
+        window.heart--
+      
+        this.hitSnd.play()
+      
+        enemy.disableBody(true,true);
+      
+        updateInventory.call(this)
+
+        if (window.heart == 0){
+     
+          this.scene.stop('trap3');
+          this.scene.stop('showInventory');
+          this.scene.start("gameover")
+         
+        }
+      }
 
 }
 
-function collectlove (pig, love1)
-    {
-        love1.disableBody(true, true);
-    }
-    function collectlove (pig, love2)
-    {
-        love2.disableBody(true, true);
-    }
-    function collectlove (pig, love3)
-    {
-        love3.disableBody(true, true);
-    }
 
-    function collectfood (pig, corn1)
-    {
-        corn1.disableBody(true, true);
-    }
-    function collectfood (pig, corn2)
-    {
-        corn2.disableBody(true, true);
-    }
-    function collectfood (pig, corn3)
-    {
-        corn3.disableBody(true, true);
-    }
-    function collectfood (pig, corn4)
-    {
-        corn4.disableBody(true, true);
-    }
-    function collectfood (pig, corn5)
-    {
-        corn5.disableBody(true, true);
-    }
-    function collectfood (pig, corn6)
-    {
-        corn6.disableBody(true, true);
-    }
-    function collectfood (pig, corn7)
-    {
-        corn7.disableBody(true, true);
-    }
-    function collectkey (pig, key)
-    {
-        key.disableBody(true, true);
-    }
+    window.key = 0
+window.heart = 3

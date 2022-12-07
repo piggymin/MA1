@@ -22,13 +22,7 @@ class trap1 extends Phaser.Scene {
     }
 
     create() {
-        console.log('*** trap1 scene');
-
-        this.gameMusic=this.sound.add("gameMusic",{loop: true}).setVolume(0.2)
-        this.gameMusic.stop()
-        this.gameMusic.play()
-
-    
+        console.log('*** trap1 scene')
         
         let map = this.make.tilemap({ key: "trap1" });
 
@@ -43,16 +37,17 @@ class trap1 extends Phaser.Scene {
           this.obstacleLayer = map.createLayer("obstacle",tilesArray,0,0);
           this.itemLayer = map.createLayer("item",tilesArray,0,0);
           
-          
+          this.loveSnd = this.sound.add("collectlove").setVolume(3);
+          this.keySnd = this.sound.add("collectkey").setVolume(2);
+          this.hitSnd = this.sound.add("hit").setVolume(3);
+
           var startPoint = map.findObject("objectLayer",(obj) => obj.name === "start");
           this.player = this.physics.add.sprite(startPoint.x, startPoint.y, 'pig').play("down");
           
           var key = map.findObject("objectLayer", (obj) => obj.name === "key");
           this.key = this.physics.add.sprite(key.x, key.y, 'key');
           var love1 = map.findObject("objectLayer", (obj) => obj.name === "love1");
-          this.love1 = this.physics.add.sprite(love1.x, love1.y, 'love');
-          var love2 = map.findObject("objectLayer", (obj) => obj.name === "love2");
-          this.love2 = this.physics.add.sprite(love2.x, love2.y, 'love');
+          this.love1 = this.physics.add.sprite(love1.x, love1.y, 'love')
           var love3 = map.findObject("objectLayer", (obj) => obj.name === "love3");
           this.love3 = this.physics.add.sprite(love3.x, love3.y, 'love');
           
@@ -81,31 +76,26 @@ class trap1 extends Phaser.Scene {
        // make the camera follow the player
        this.cameras.main.startFollow(this.player);
       
-       // set background color, so the sky is not black
        this.cameras.main.setBackgroundColor("#ccccff");
        
        this.itemLayer.setCollisionByExclusion(-1, true);
 
-       //  this.physics.add.collider(this.player, this.decorLayer);
         this.physics.add.collider(this.player, this.itemLayer);
 
-        this.physics.add.overlap(this.player, this.love1, collectlove, null, this);
-        this.physics.add.overlap(this.player, this.love2, collectlove, null, this);
-        this.physics.add.overlap(this.player, this.love3, collectlove, null, this);
+        this.physics.add.overlap(this.player, this.love1, this.collectlove, null, this);
+        this.physics.add.overlap(this.player, this.love3, this.collectlove, null, this);
         
-        this.physics.add.overlap(this.player, this.corn1, collectfood, null, this);
-        this.physics.add.overlap(this.player, this.corn2, collectfood, null, this);
-        this.physics.add.overlap(this.player, this.corn3, collectfood, null, this);
-        this.physics.add.overlap(this.player, this.corn4, collectfood, null, this);
-        this.physics.add.overlap(this.player, this.corn5, collectfood, null, this);
+        this.physics.add.overlap(this.player, this.corn1, this.collectfood, null, this);
+        this.physics.add.overlap(this.player, this.corn2, this.collectfood, null, this);
+        this.physics.add.overlap(this.player, this.corn3, this.collectfood, null, this);
+        this.physics.add.overlap(this.player, this.corn4, this.collectfood, null, this);
+        this.physics.add.overlap(this.player, this.corn5, this.collectfood, null, this);
         
-        this.physics.add.overlap(this.player, this.key, collectkey, null, this);
- 
+        this.physics.add.overlap(this.player, this.key, this.collectkey, null, this);
+
         var cursors;
-        var score = 0;
-        var scoreText;
+      
         var game = new Phaser.Game(config);
-        scoreText = this.add.text(30, 30, 'score: 0', { fontSize: '40px', fill: '#ccccff' });
 
         this.time.addEvent({
 
@@ -121,7 +111,7 @@ class trap1 extends Phaser.Scene {
     
         this.enemy1 = this.physics.add.sprite(353, 162, "enemy")
         this.enemy1.body.setSize(this.enemy1.width*1,this.enemy1.height*1)
-        this.physics.add.overlap(this.player, this.enemy1,this.overlap,null,this);
+        this.physics.add.overlap(this.player, this.enemy1,this.hitenemy,null,this);
 
         this.time.addEvent({
 
@@ -137,7 +127,7 @@ class trap1 extends Phaser.Scene {
     
         this.enemy2 = this.physics.add.sprite(675, 1061, "enemy")
         this.enemy2.body.setSize(this.enemy2.width*1,this.enemy2.height*1)
-        this.physics.add.overlap(this.player, this.enemy2,this.overlap,null,this);
+        this.physics.add.overlap(this.player, this.enemy2,this.hitenemy,null,this);
         
 
         this.time.addEvent({
@@ -151,19 +141,46 @@ class trap1 extends Phaser.Scene {
           loop: false,
     
         });
+
+        this.scene.launch("showInventory")
     
         this.enemy3 = this.physics.add.sprite(995, 162, "enemy")
         this.enemy3.body.setSize(this.enemy3.width*1,this.enemy3.height*1)
-        this.physics.add.overlap(this.player, this.enemy3,this.overlap,null,this);
+        this.physics.add.overlap(this.player, this.enemy3,this.hitenemy,null,this);
+
+        this.time.addEvent({
+
+          delay: 0,
+        
+          callback: updateInventory,
+        
+          callbackScope: this,
+        
+          loop: false,
+        
+        });
+        
     }
 
     update() {
        if (
         this.player.x > 1571 &&
         this.player.x < 1634 &&
-        this.player.y < 165
+        this.player.y < 165 &&
+        window.key >= 1 &&
+        window.food >=5 &&
+        window.gameMusic.stop()
       ) {
         this.worldmap();
+      }
+      else if (
+        this.player.x > 1571 &&
+        this.player.x < 1634 &&
+        this.player.y < 165 &&
+        window.key <= 1 &&
+        window.food <=5
+      ) {
+        console.log("can't go to worldmap, not enough key/food")
       }
 
         if (this.cursors.left.isDown) {
@@ -189,6 +206,8 @@ class trap1 extends Phaser.Scene {
             this.player.body.setVelocity(0, 0);
             //console.log('idle');
           }
+
+          
     }
 
 
@@ -201,26 +220,13 @@ worldmap(player, tile) {
   this.scene.start("worldmap" ,{player:playerPos});
 }
 
-overlap(){
-
-  console.log("enemy overlap player")
-
-  // lose a life
-
-  //shake the camera
-
-  this.cameras.main.shake(20);
-
-  //play a sound
-
-}
 moveDownUp1() {
     console.log("moveDownUp");
     this.tweens.timeline({
     targets: this.enemy1,
     ease: "Linear",
     loop: -1, // loop forever
-    duration: 2500,
+    duration: 2000,
     tweens: [
       {
         y: 1052,
@@ -238,7 +244,7 @@ moveDownUp2() {
   targets: this.enemy2,
   ease: "Linear",
   loop: -1, // loop forever
-  duration: 2500,
+  duration: 2000,
   tweens: [
     {
       y: 100,
@@ -256,7 +262,7 @@ moveDownUp3() {
   targets: this.enemy3,
   ease: "Linear",
   loop: -1, // loop forever
-  duration: 2500,
+  duration: 2000,
   tweens: [
     {
       y: 1052,
@@ -268,52 +274,84 @@ moveDownUp3() {
 });
 }
 
+collectlove(player,love){
+
+  console.log("collectlove");
+
+  this.loveSnd.play()
+
+window.heart++
+if (window.heart > 3){
+  window.heart = 3;
 }
 
-   function collectlove (pig, love1)
-    {
-        love1.disableBody(true, true);
-    }
-    function collectlove (pig, love2)
-    {
-        love2.disableBody(true, true);
-    }
-    function collectlove (pig, love3)
-    {
-        love3.disableBody(true, true);
-    }
+if (window.heart == 0){
+  this.scene.stop()
+  this.scene.start("gameover");
+  this.loseSnd.play();
+}
 
-    function collectfood (pig, corn1)
-    {
-        corn1.disableBody(true, true);
+love.disableBody(true,true);
 
-        score += 100;
-        scoreText.setText('Score:'+ score);
-    }
-    function collectfood (pig, corn2)
-    {
-        corn2.disableBody(true, true);
-    }
-    function collectfood (pig, corn3)
-    {
-        corn3.disableBody(true, true);
-    }
-    function collectfood (pig, corn4)
-    {
-        corn4.disableBody(true, true);
-    }
-    function collectfood (pig, corn5)
-    {
-        corn5.disableBody(true, true);
-    }
-    function collectkey (pig, key)
-    {
-        key.disableBody(true, true);
-    }
+updateInventory.call(this)
+}
 
-    
-    // function collectfood (pig, corn1)
-    // {
-    //     corn1.disableBody(true, true);
-    //     this.cameras.main.shake(200)
-    // }
+collectfood(player,food){
+  console.log("collectfood");
+
+// this.Collectlove_snd.play()
+this.keySnd.play()
+
+window.food++
+
+food.disableBody(true,true);
+
+updateInventory.call(this)
+}
+
+collectkey(player,key){
+  console.log("collectkey");
+
+this.keySnd.play()
+
+window.key++
+
+key.disableBody(true,true);
+
+updateInventory.call(this)
+}
+
+hitenemy(player,enemy){
+
+  console.log("enemy overlap player")
+
+  // lose a life
+
+  //shake the camera
+
+  this.cameras.main.shake(100);
+
+  window.heart--
+
+  this.hitSnd.play()
+
+  enemy.disableBody(true,true);
+
+  updateInventory.call(this)
+  
+if (window.heart == 0){
+     
+    this.scene.stop('trap1');
+    this.scene.stop('showInventory');
+    this.scene.start("gameover")
+  }
+  
+}
+
+
+}
+
+window.key= 0
+window.heart = 3
+window.food=0
+   
